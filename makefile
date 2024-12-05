@@ -2,26 +2,30 @@
 CC = gcc
 CFLAGS = -Wall -Iinclude
 
-# Sources, objects, and targets
+# Directories
 SRC_DIR = src
 OBJ_DIR = obj
-INCLUDE_DIR = include
+BIN_DIR = bin
 
-SRC = $(SRC_DIR)/main.c $(SRC_DIR)/shell.c $(SRC_DIR)/command.c $(SRC_DIR)/io_redirect.c
-OBJ = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
-TARGET = shell
+# Source files and target files
+SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/shell.c $(SRC_DIR)/command.c $(SRC_DIR)/io_redirect.c
+OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SOURCES))
+TARGET = $(BIN_DIR)/shell
 INCREMENT = increment
 
 # Default target
 all: $(TARGET) $(INCREMENT)
 
-# Build the main shell executable
-$(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $(TARGET)
+# Build the shell executable
+$(TARGET): $(OBJECTS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(OBJECTS) -o $(TARGET)
+	@echo "Shell executable built successfully!"
 
 # Build the increment executable
 $(INCREMENT): $(SRC_DIR)/increment.c
 	$(CC) $(CFLAGS) $< -o $@
+	@echo "Increment executable built successfully!"
 
 # Build object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
@@ -30,4 +34,6 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 
 # Clean up generated files
 clean:
-	rm -rf $(OBJ_DIR) $(TARGET) $(INCREMENT)
+	rm -rf $(OBJ_DIR) $(BIN_DIR) $(INCREMENT)
+	@echo "Cleaned up all build files!"
+

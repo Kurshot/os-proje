@@ -10,6 +10,10 @@
 // Prototipler
 void handle_redirection(char *command, char **args, char **input_file, char **output_file);
 
+char* trim_whitespace(char *str);
+
+
+
 void execute_command(char *command) {
     char *args[64];
     int is_background = 0;
@@ -83,30 +87,6 @@ void handle_redirection(char *command, char **args, char **input_file, char **ou
     args[i] = NULL;
 }
 
-void execute_sequential(char *commands) {
-    char *command;
-    char *copy = strdup(commands); // Komutların bir kopyasını al
-    char *saveptr = NULL;
-
-    command = strtok_r(copy, ";", &saveptr); // İlk komutu al
-
-    while (command != NULL) {
-        // Başındaki ve sonundaki boşlukları temizle
-        while (*command == ' ') command++; // Başındaki boşlukları kaldır
-        char *end = command + strlen(command) - 1;
-        while (end > command && *end == ' ') *end-- = '\0'; // Sonundaki boşlukları kaldır
-
-        // Her komutu sırayla çalıştır
-        execute_command(command);
-
-        // Sonraki komutu al
-        command = strtok_r(NULL, ";", &saveptr);
-    }
-
-    free(copy); // Kopyalanan string'i serbest bırak
-}
-
-
 void execute_pipe(char *commands) {
     char *args[64];
     char *command_list[64];
@@ -118,10 +98,8 @@ void execute_pipe(char *commands) {
     char *token = strtok(commands, "|");
 
     while (token != NULL) {
-        // Komutun başındaki ve sonundaki boşlukları temizle
-        while (*token == ' ') token++;
-        char *end = token + strlen(token) - 1;
-        while (end > token && *end == ' ') *end-- = '\0';
+        
+		commands = trim_whitespace(commands);
 
         command_list[num_commands++] = token;
         token = strtok(NULL, "|");
@@ -164,4 +142,61 @@ void execute_pipe(char *commands) {
             perror("Fork failed");
         }
     }
+}
+
+
+void execute_sequential(char *commands) {
+    char *command;
+    char *copy = strdup(commands); // Komutların bir kopyasını al
+    char *saveptr = NULL;
+
+    // Noktalı virgülle ayrılmış komutları sırayla al
+    command = strtok_r(copy, ";", &saveptr);
+
+    while (command != NULL) {
+        
+		
+		command = trim_whitespace(command);
+
+        // Eğer komut boşsa atla
+        if (strlen(command) == 0) {
+            command = strtok_r(NULL, ";", &saveptr);
+            continue;
+        }
+		
+		if(strstr(command, ";")){
+			execute_sequential(command);
+		}
+        // Komut pipe içeriyorsa execute_pipe çağır
+        else if (strstr(command, "|")) {
+            execute_pipe(command);
+        } else {
+            execute_command(command); // Tek bir komutsa execute_command çağır
+        }
+
+        // Sonraki komutu al
+        command = strtok_r(NULL, ";", &saveptr);
+    }
+
+    free(copy); // Kopyalanan string'i serbest bırak
+}
+
+char* trim_whitespace(char *str) {
+    // Eğer boş bir string gelirse, direkt geri döndür
+    if (str == NULL || strlen(str) == 0) return str;
+
+    // Baştaki boşlukları bul
+    while (*str == ' ') str++;
+
+    // Eğer tüm karakterler boşluksa, geri döndür
+    if (*str == '\0') return str;
+
+    // Sonundaki boşlukları bul
+    char *end = str + strlen(str) - 1;
+    while (end > str && *end == ' ') end--;
+
+    // String'in sonuna NULL karakterini ekle
+    *(end + 1) = '\0';
+
+    return str;
 }

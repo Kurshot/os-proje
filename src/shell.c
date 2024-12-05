@@ -83,13 +83,14 @@ void run_shell() {
             continue;
         }
 
-      // Boru ile ayrılmış komutları çalıştır
-        if (strstr(command, "|")) {
-            execute_pipe(command);
-        }
+      
         // Noktalı virgül ile ayrılmış komutları sırayla çalıştır
-        else if (strstr(command, ";")) {
+        if (strstr(command, ";")) {
             execute_sequential(command);
+        }
+		// Boru ile ayrılmış komutları çalıştır
+        else if (strstr(command, "|")) {
+            execute_pipe(command);
         }
         // Tek bir komut varsa
         else {
