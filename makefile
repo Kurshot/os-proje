@@ -1,39 +1,36 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Iinclude
+CFLAGS = -Wall -Wextra -g -Iinclude
 
 # Directories
 SRC_DIR = src
 OBJ_DIR = obj
 BIN_DIR = bin
+INCLUDE_DIR = include
 
-# Source files and target files
-SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/shell.c $(SRC_DIR)/command.c $(SRC_DIR)/io_redirect.c
-OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SOURCES))
-TARGET = $(BIN_DIR)/shell
-INCREMENT = increment
+# Files
+SHELL_TARGET = $(BIN_DIR)/shell
+
+SHELL_SRC_FILES = $(filter-out $(SRC_DIR)/increment.c, $(wildcard $(SRC_DIR)/*.c))
+SHELL_OBJ_FILES = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SHELL_SRC_FILES))
+INCREMENT_OBJ = $(OBJ_DIR)/increment.o
 
 # Default target
-all: $(TARGET) $(INCREMENT)
+all: $(SHELL_TARGET)
 
-# Build the shell executable
-$(TARGET): $(OBJECTS)
+# Build the main shell program
+$(SHELL_TARGET): $(SHELL_OBJ_FILES) $(INCREMENT_OBJ)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(OBJECTS) -o $(TARGET)
-	@echo "Shell executable built successfully!"
+	$(CC) $(CFLAGS) -o $@ $^
 
-# Build the increment executable
-$(INCREMENT): $(SRC_DIR)/increment.c
-	$(CC) $(CFLAGS) $< -o $@
-	@echo "Increment executable built successfully!"
-
-# Build object files
+# Compile object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean up generated files
+# Clean up build artifacts
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) $(INCREMENT)
-	@echo "Cleaned up all build files!"
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
+# Rebuild everything
+rebuild: clean all

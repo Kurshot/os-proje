@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main() {
+int main_inc() {
     int num;
     if (scanf("%d", &num) == 1) { // Standart girdiden bir sayı oku
         printf("%d\n", num + 1);  // Sayıyı 1 artır ve ekrana yaz

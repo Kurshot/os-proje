@@ -144,7 +144,6 @@ void execute_pipe(char *commands) {
     }
 }
 
-
 void execute_sequential(char *commands) {
     char *command;
     char *copy = strdup(commands); // Komutların bir kopyasını al
@@ -154,23 +153,28 @@ void execute_sequential(char *commands) {
     command = strtok_r(copy, ";", &saveptr);
 
     while (command != NULL) {
-        
-		
-		command = trim_whitespace(command);
+        // Başındaki ve sonundaki boşlukları temizle
+        command = trim_whitespace(command);
+
+        // Debug: İşlenen komut
+        printf("Processing command: '%s'\n", command);
+        fflush(stdout);
 
         // Eğer komut boşsa atla
         if (strlen(command) == 0) {
+            printf("Skipping empty command\n");
             command = strtok_r(NULL, ";", &saveptr);
             continue;
         }
-		
-		if(strstr(command, ";")){
-			execute_sequential(command);
-		}
+
         // Komut pipe içeriyorsa execute_pipe çağır
-        else if (strstr(command, "|")) {
+        if (strstr(command, "|")) {
+            printf("Executing pipe command: '%s'\n", command);
+            fflush(stdout);
             execute_pipe(command);
         } else {
+            printf("Executing single command: '%s'\n", command);
+            fflush(stdout);
             execute_command(command); // Tek bir komutsa execute_command çağır
         }
 
@@ -180,6 +184,7 @@ void execute_sequential(char *commands) {
 
     free(copy); // Kopyalanan string'i serbest bırak
 }
+
 
 char* trim_whitespace(char *str) {
     // Eğer boş bir string gelirse, direkt geri döndür

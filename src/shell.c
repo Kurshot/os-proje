@@ -83,9 +83,13 @@ void run_shell() {
             continue;
         }
 
+		printf("Processing command shell içinde: '%s'\n", command);
+        fflush(stdout);
       
         // Noktalı virgül ile ayrılmış komutları sırayla çalıştır
         if (strstr(command, ";")) {
+			printf("Processing command shell->execute seq içinde: '%s'\n", command);
+			fflush(stdout);
             execute_sequential(command);
         }
 		// Boru ile ayrılmış komutları çalıştır
