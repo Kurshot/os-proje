@@ -11,50 +11,37 @@
 void handle_redirection(char *command, char **args, char **input_file, char **output_file);
 
 void execute_command(char *command) {
-    // Borulama kontrolü
-    if (strstr(command, "|")) {
-        execute_pipe(command);
-        return;
+    char *args[64];
+    int is_background = 0;
+
+    // Arka plan kontrolü
+    if (command[strlen(command) - 1] == '&') {
+        is_background = 1;
+        command[strlen(command) - 1] = '\0'; // '&' karakterini kaldır
     }
 
-    char *args[64];
-    char *input_file = NULL;
-    char *output_file = NULL;
-
-    // Giriş ve çıkış yönlendirmesi
-    handle_redirection(command, args, &input_file, &output_file);
+    // Komut ve argümanları ayrıştır
+    char *token = strtok(command, " ");
+    int i = 0;
+    while (token != NULL) {
+        args[i++] = token;
+        token = strtok(NULL, " ");
+    }
+    args[i] = NULL;
 
     pid_t pid = fork();
     if (pid == 0) {
-        // Çıkış dosyasını yönlendir
-        if (output_file) {
-            int fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-            if (fd < 0) {
-                perror("Output file error");
-                exit(EXIT_FAILURE);
-            }
-            dup2(fd, STDOUT_FILENO);
-            close(fd);
-        }
-
-        // Giriş dosyasını yönlendir
-        if (input_file) {
-            int fd = open(input_file, O_RDONLY);
-            if (fd < 0) {
-                perror("Input file error");
-                exit(EXIT_FAILURE);
-            }
-            dup2(fd, STDIN_FILENO);
-            close(fd);
-        }
-
-        // Komutu çalıştır
+        // Çocuk süreç
         if (execvp(args[0], args) == -1) {
             perror("Execution failed");
         }
         exit(EXIT_FAILURE);
     } else if (pid > 0) {
-        waitpid(pid, NULL, 0); // Çocuk sürecin tamamlanmasını bekle
+        if (is_background) {
+            printf("[PID %d] Running in background\n", pid);
+        } else {
+            waitpid(pid, NULL, 0); // Ön plan süreci bekle
+        }
     } else {
         perror("Fork failed");
     }
