@@ -32,8 +32,6 @@ void handle_sigchld(int sig) {
 }
 
 
-
-
 // Ana kabuk döngüsü
 void run_shell() {
     char command[1024];
@@ -85,11 +83,16 @@ void run_shell() {
             continue;
         }
 
+      // Boru ile ayrılmış komutları çalıştır
+        if (strstr(command, "|")) {
+            execute_pipe(command);
+        }
         // Noktalı virgül ile ayrılmış komutları sırayla çalıştır
-        if (strstr(command, ";")) {
+        else if (strstr(command, ";")) {
             execute_sequential(command);
-        } else {
-            // Tek bir komut varsa
+        }
+        // Tek bir komut varsa
+        else {
             execute_command(command);
         }
     }
