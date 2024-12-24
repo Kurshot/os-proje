@@ -14,7 +14,7 @@ Built-in Komut : quit komutu ile program güvenli şekilde sonlanır.
 
 Tekli Komut : Alt süreç oluşturularak komut çalıştırılır.
 
-Giriş/Çıkış Yönlendirme : komut < dosya ve komut > dosya kullanımı desteklenir.
+Giriş/Çıkış Yönlendirme : komut dosya kullanımı desteklenir.
 
 Arkaplan Çalışma : komut & ile komut arka planda çalışır.
 
