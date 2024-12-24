@@ -1,5 +1,3 @@
-Linux Shell Uygulaması README
-
 📌 Proje Tanımı
 
 Bu proje, Linux Shell uygulamasını geliştirerek süreç yönetimi, I/O yönlendirme ve arka plan işlemleri gibi temel kavramları öğretmeyi amaçlamaktadır.
